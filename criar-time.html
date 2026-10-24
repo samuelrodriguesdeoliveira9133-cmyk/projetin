@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar Clube | Football Manager</title>
+
+<style>
+:root {
+  --bg: #080d16;
+  --panel: #111a29;
+  --panel2: #182438;
+  --green: #39e58c;
+  --text: #f4f7fb;
+  --muted: #93a4ba;
+  --border: #29374c;
+  --red: #ff6464;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top right, #153b36 0, transparent 35%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+header {
+  padding: 18px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid var(--border);
+  background: #080d16eF;
+}
+
+.logo {
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 19px;
+}
+
+.logo span {
+  color: var(--green);
+}
+
+.header-btn {
+  color: var(--text);
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 9px;
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 30px auto 60px;
+}
+
+.intro {
+  margin-bottom: 25px;
+}
+
+.intro h1 {
+  margin: 0 0 9px;
+  font-size: clamp(27px, 5vw, 38px);
+}
+
+.intro p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 25px 0;
+}
+
+.progress-step {
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 12px 5px;
+  border-radius: 9px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.progress-step.active {
+  border-color: var(--green);
+  color: var(--green);
+  background: #123329;
+}
+
+.progress-step.done {
+  color: var(--text);
+  border-color: #287b57;
+}
+
+.card {
+  background: linear-gradient(145deg, #121d2e, #0e1725);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  padding: clamp(18px, 4vw, 30px);
+  box-shadow: 0 15px 45px #00000020;
+}
+
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+}
+
+.step h2 {
+  margin-top: 0;
+  font-size: 23px;
+}
+
+.description {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: -5px;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #dbe5f2;
+}
+
+input, select {
+  width: 100%;
+  min-width: 0;
+  padding: 13px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #0a1220;
+  color: var(--text);
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--green);
+}
+
+small, .hint {
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 12px;
+}
+
+.crest-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.crest-option {
+  min-height: 75px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0a1220;
+  color: white;
+  font-size: 34px;
+  display: grid;
+  place-items: center;
+}
+
+.crest-option.selected {
+  border: 2px solid var(--green);
+  background: #153329;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 17px;
+  border-radius: 12px;
+  background: #0a1220;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.preview-crest {
+  font-size: 54px;
+  width: 75px;
+  height: 75px;
+  display: grid;
+  place-items: center;
+  background: var(--panel2);
+  border-radius: 13px;
+}
+
+.preview h3 {
+  margin: 0 0 7px;
+  font-size: 20px;
+}
+
+.preview p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.stadium-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.stadium-option {
+  text-align: left;
+  padding: 17px;
+  background: #0a1220;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+}
+
+.stadium-option.selected {
+  border: 2px solid var(--green);
+  background: #123329;
+}
+
+.stadium-option strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.stadium-option span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat {
+  background: #0a1220;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.stat span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.stat strong {
+  font-size: 22px;
+}
+
+.review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.review-row span {
+  color: var(--muted);
+}
+
+.review-row strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn {
+  padding: 13px 20px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background: var(--panel2);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--green);
+  color: #06150e;
+  border-color: var(--green);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.notice {
+  padding: 13px;
+  border: 1px solid #296a51;
+  background: #10291f;
+  color: #a9f5cc;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 18px;
+}
+
+.error {
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 25px 0 10px;
+}
+
+.success-screen.active {
+  display: block;
+}
+
+.success-crest {
+  font-size: 75px;
+  margin-bottom: 15px;
+}
+
+.success-screen h2 {
+  font-size: 30px;
+  margin: 0 0 10px;
+}
+
+.success-screen p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+@media (max-width: 650px) {
+  header {
+    padding: 15px 4%;
+  }
+
+  .logo {
+    font-size: 15px;
+  }
+
+  .container {
+    width: 94%;
+    margin-top: 22px;
+  }
+
+  .progress {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .progress-step {
+    font-size: 10px;
+    padding: 10px 2px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: auto;
+  }
+
+  .crest-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .stadium-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions .btn {
+    padding: 12px;
+    flex: 1;
+  }
+
+  .review-row {
+    align-items: flex-start;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">FOOTBALL <span>MANAGER</span></div>
+  <button class="header-btn" onclick="voltarMenu()">← Menu principal</button>
+</header>
+
+<div class="container">
+  <div class="intro">
+    <h1>Crie seu clube</h1>
+    <p>Construa sua identidade, escolha sua casa e comece sua jornada rumo ao topo do futebol.</p>
+  </div>
+
+  <div class="progress" id="progress">
+    <div class="progress-step active">1. Identidade</div>
+    <div class="progress-step">2. Localização</div>
+    <div class="progress-step">3. Estádio</div>
+    <div class="progress-step">4. Torcida</div>
+    <div class="progress-step">5. Revisão</div>
+  </div>
+
+  <div class="card" id="creationCard">
+
+    <section class="step active" data-step="0">
+      <h2>Identidade do clube</h2>
+      <p class="description">Escolha o nome, a sigla, as cores e o escudo que vão representar sua equipe.</p>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label for="clubName">Nome completo do clube</label>
+          <input id="clubName" maxlength="40" placeholder="Ex.: Atlético do Vale">
+        </div>
+
+        <div class="field">
+          <label for="shortName">Sigla do clube</label>
+          <input id="shortName" maxlength="5" placeholder="Ex.: ATV">
+        </div>
+
+        <div class="field">
+          <label for="nickname">Apelido</label>
+          <input id="nickname" maxlength="30" placeholder="Ex.: Os Guerreiros">
+        </div>
+
+        <div class="field">
+          <label for="primaryColor">Cor principal</label>
+          <select id="primaryColor">
+            <option value="#22c55e">Verde</option>
+            <option value="#e53935">Vermelho</option>
+            <option value="#2563eb">Azul</option>
+            <option value="#facc15">Amarelo</option>
+            <option value="#f8fafc">Branco</option>
+            <option value="#a855f7">Roxo</option>
+            <option value="#f97316">Laranja</option>
+            <option value="#ec4899">Rosa</option>
+            <option value="#64748b">Cinza</option>
+            <option value="#111827">Preto</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="secondaryColor">Cor secundária</label>
+          <select id="secondaryColor">
+            <option value="#f8fafc">Branco</option>
+            <option value="#111827">Preto</option>
+            <option value="#22c55e">Verde</option>
+            <option value="#e53935">Vermelho</option>
+            <option value="#2563eb">Azul</option>
+            <option value="#facc15">Amarelo</option>
+            <option value="#a855f7">Roxo</option>
+            <option value="#f97316">Laranja</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field full" style="margin-top:24px">
+        <label>Escolha o escudo</label>
+        <div class="crest-grid" id="crestGrid"></div>
+        <p class="hint">O escudo escolhido aparecerá na identificação do clube.</p>
+      </div>
+
+      <div class="preview">
+        <div class="preview-crest" id="crestPreview">🛡️</div>
+        <div>
+          <h3 id="clubPreview">Seu clube</h3>
+          <p id="clubPreviewInfo">SIG • Apelido do clube</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="step" data-step="1">
+      <h2>Onde seu clube vai jogar?</h2>
+      <p class="description">Escolha o país, a região e a cidade. Se uma cidade não tiver um estádio específico cadastrado, o jogo disponibilizará um estádio local genérico.</p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="country">País</label>
+          <select id="country">
+            <option value="Brasil">Brasil</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Espanha">Espanha</option>
+            <option value="Inglaterra">Inglaterra</option>
+            <option value="Itália">Itália</option>
+            <option value="Alemanha">Alemanha</option>
+            <option value="França">França</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Uruguai">Uruguai</option>
+            <option value="Estados Unidos">Estados Unidos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="region">Estado / região</label>
+          <select id="region"></select>
+        </div>
+
+        <div class="field full">
+          <label for="city">Cidade</label>
+          <select id="city"></select>
+        </div>
+
+        <div class="field full">
+          <label for="customCity">Ou digite outra cidade (opcional)</label>
+          <input id="customCity" maxlength="50" placeholder="Digite o nome da cidade">
+          <small>Se preencher este campo, o jogo usará o nome digitado.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="step" data-step="2">
+      <h2>A casa do seu clube</h2>
+      <p class="description">Todo clube precisa de um estádio. Escolha uma opção compatível com uma equipe que está começando.</p>
+
+      <div class="field">
+        <label for="stadiumName">Nome do estádio</label>
+        <input id="stadiumName" maxlength="45" placeholder="Ex.: Estádio Municipal">
+      </div>
+
+      <div class="stadium-grid" id="stadiumGrid">
+        <button class="stadium-option selected" type="button" data-capacity="1000" data-price="0">
+          <strong>🏟️ Campo comunitário</strong>
+          <span>Capacidade: 1.000 pessoas<br>Estrutura simples, ideal para começar.</span>
+        </button>
+
+        <button class="stadium-option" type="button" data-capacity="1800" data-price="0">
+          <strong>🏟️ Estádio municipal</strong>
+          <span>Capacidade: 1.800 pessoas<br>Uma casa pequena para uma torcida local.</span>
+        </button>
+
+        <button class="stadium-option" type="button" data-capacity="2500" data-price="0">
+          <strong>🏟️ Arena regional</strong>
+          <span>Capacidade: 2.500 pessoas<br>Mais espaço para os torcedores.</span>
+        </button>
+
+        <button class="stadium-option" type="button" data-capacity="3000" data-price="0">
+          <strong>🏟️ Estádio tradicional</strong>
+          <span>Capacidade: 3.000 pessoas<br>Uma estrutura maior para um clube em crescimento.</span>
+        </button>
+      </div>
+
+      <div class="notice">Todos os estádios desta etapa têm custo inicial de construção igual a zero. O objetivo é deixar seu clube pronto para começar a jogar.</div>
+    </section>
+
+    <section class="step" data-step="3">
+      <h2>Torcida e finanças iniciais</h2>
+      <p class="description">Sua torcida começa pequena. O número de fãs poderá crescer com resultados, títulos e temporadas bem-sucedidas.</p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="fanbase">Tamanho inicial da torcida</label>
+          <select id="fanbase">
+            <option value="regional">Regional</option>
+            <option value="national">Nacional</option>
+            <option value="international">Internacional</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="ticketPrice">Preço do ingresso</label>
+          <select id="ticketPrice">
+            <option value="1">R$ 1</option>
+            <option value="2">R$ 2</option>
+            <option value="3">R$ 3</option>
+            <option value="4">R$ 4</option>
+            <option value="5" selected>R$ 5</option>
+            <option value="6">R$ 6</option>
+            <option value="7">R$ 7</option>
+            <option value="8">R$ 8</option>
+            <option value="9">R$ 9</option>
+            <option value="10">R$ 10</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <span>Torcedores iniciais</span>
+          <strong id="fansPreview">3.000</strong>
+        </div>
+        <div class="stat">
+          <span>Divisão inicial</span>
+          <strong style="font-size:18px">Última divisão</strong>
+        </div>
+        <div class="stat">
+          <span>Orçamento inicial</span>
+          <strong>R$ 2,5 mi</strong>
+        </div>
+      </div>
+
+      <div class="notice">O orçamento é um valor inicial de jogo. A quantidade de torcedores e a divisão poderão ser usadas depois nos cálculos de renda, reputação e progressão do clube.</div>
+    </section>
+
+    <section class="step" data-step="4">
+      <h2>Revise seu clube</h2>
+      <p class="description">Confira os detalhes antes de fundar oficialmente a equipe.</p>
+
+      <div class="preview">
+        <div class="preview-crest" id="reviewCrest">🛡️</div>
+        <div>
+          <h3 id="reviewName">Seu clube</h3>
+          <p id="reviewShort">SIG</p>
+        </div>
+      </div>
+
+      <div class="review-list" id="reviewList"></div>
+      <div class="error" id="reviewError"></div>
+    </section>
+
+    <div class="actions" id="navigationActions">
+      <button class="btn btn-secondary" id="backBtn" type="button" disabled>Voltar</button>
+      <button class="btn btn-primary" id="nextBtn" type="button">Continuar →</button>
+    </div>
+
+    <section class="success-screen" id="successScreen">
+      <div class="success-crest" id="successCrest">🛡️</div>
+      <h2 id="successName">Clube criado!</h2>
+      <p>Seu clube foi salvo. Agora é hora de montar o elenco e começar a construir sua história.</p>
+      <div class="success-actions">
+        <button class="btn btn-secondary" type="button" onclick="voltarMenu()">Menu principal</button>
+        <button class="btn btn-primary" type="button" onclick="irParaElenco()">Jogar →</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const CLUB_KEY = "footballManagerClub";
+
+const crests = [
+  "🛡️", "🦁", "🐺", "🦅", "🐯", "🐉", "🐂", "🐻",
+  "⭐", "⚽", "🔥", "👑", "🌟", "🐍", "🦈", "🐆",
+  "🌪️", "☀️", "🌙", "💎", "🏆", "🦊", "🐦‍⬛", "🦌",
+  "🌋", "⚡", "🌊", "🌳", "🦍", "🐎", "🦂", "🦉",
+  "🔱", "♠️", "♜", "✴️", "🌐", "🏹", "🐬", "🦓"
+];
+
+const locationData = {
+  "Brasil": {
+    "Acre": ["Rio Branco", "Cruzeiro do Sul"],
+    "Alagoas": ["Maceió", "Arapiraca"],
+    "Amapá": ["Macapá", "Santana"],
+    "Amazonas": ["Manaus", "Parintins"],
+    "Bahia": ["Salvador", "Feira de Santana", "Vitória da Conquista"],
+    "Ceará": ["Fortaleza", "Juazeiro do Norte", "Sobral"],
+    "Distrito Federal": ["Brasília"],
+    "Espírito Santo": ["Vitória", "Vila Velha", "Serra"],
+    "Goiás": ["Goiânia", "Anápolis", "Aparecida de Goiânia"],
+    "Maranhão": ["São Luís", "Imperatriz"],
+    "Mato Grosso": ["Cuiabá", "Várzea Grande", "Rondonópolis"],
+    "Mato Grosso do Sul": ["Campo Grande", "Dourados"],
+    "Minas Gerais": ["Belo Horizonte", "Uberlândia", "Juiz de Fora", "Contagem"],
+    "Pará": ["Belém", "Santarém", "Marabá"],
+    "Paraíba": ["João Pessoa", "Campina Grande"],
+    "Paraná": ["Curitiba", "Londrina", "Maringá", "Cascavel"],
+    "Pernambuco": ["Recife", "Caruaru", "Petrolina"],
+    "Piauí": ["Teresina", "Parnaíba"],
+    "Rio de Janeiro": ["Rio de Janeiro", "Niterói", "Volta Redonda"],
+    "Rio Grande do Norte": ["Natal", "Mossoró"],
+    "Rio Grande do Sul": ["Porto Alegre", "Caxias do Sul", "Pelotas"],
+    "Rondônia": ["Porto Velho", "Ji-Paraná"],
+    "Roraima": ["Boa Vista"],
+    "Santa Catarina": ["Florianópolis", "Joinville", "Chapecó"],
+    "São Paulo": ["São Paulo", "Campinas", "Santos", "Ribeirão Preto", "São José dos Campos"],
+    "Sergipe": ["Aracaju", "Itabaiana"],
+    "Tocantins": ["Palmas", "Araguaína"]
+  },
+  "Portugal": {
+    "Lisboa": ["Lisboa", "Sintra", "Cascais"],
+    "Porto": ["Porto", "Vila Nova de Gaia"],
+    "Norte": ["Braga", "Guimarães", "Vila Real"],
+    "Centro": ["Coimbra", "Aveiro", "Leiria"],
+    "Sul": ["Faro", "Évora", "Beja"],
+    "Ilhas": ["Funchal", "Ponta Delgada"]
+  },
+  "Espanha": {
+    "Madrid": ["Madrid", "Getafe"],
+    "Catalunha": ["Barcelona", "Girona", "Tarragona"],
+    "Andaluzia": ["Sevilha", "Málaga", "Granada"],
+    "Valência": ["Valência", "Alicante"],
+    "País Basco": ["Bilbao", "San Sebastián"],
+    "Galícia": ["Vigo", "A Coruña"]
+  },
+  "Inglaterra": {
+    "Grande Londres": ["Londres"],
+    "Noroeste": ["Liverpool", "Manchester"],
+    "Midlands": ["Birmingham", "Nottingham", "Leicester"],
+    "Nordeste": ["Newcastle", "Sunderland"],
+    "Sul": ["Southampton", "Brighton", "Bristol"]
+  },
+  "Itália": {
+    "Lombardia": ["Milão", "Bérgamo"],
+    "Lácio": ["Roma"],
+    "Piemonte": ["Turim"],
+    "Emília-Romanha": ["Bolonha", "Parma"],
+    "Toscana": ["Florença"],
+    "Campânia": ["Nápoles"]
+  },
+  "Alemanha": {
+    "Baviera": ["Munique", "Nuremberg"],
+    "Berlim": ["Berlim"],
+    "Renânia do Norte-Vestfália": ["Dortmund", "Colônia", "Düsseldorf"],
+    "Hamburgo": ["Hamburgo"],
+    "Hesse": ["Frankfurt"]
+  },
+  "França": {
+    "Ilha de França": ["Paris"],
+    "Provença": ["Marselha", "Nice"],
+    "Ródano-Alpes": ["Lyon"],
+    "Occitânia": ["Toulouse", "Montpellier"],
+    "Norte": ["Lille"]
+  },
+  "Argentina": {
+    "Buenos Aires": ["Buenos Aires", "La Plata"],
+    "Córdoba": ["Córdoba"],
+    "Santa Fé": ["Rosário", "Santa Fé"],
+    "Mendoza": ["Mendoza"]
+  },
+  "Uruguai": {
+    "Montevidéu": ["Montevidéu"],
+    "Canelones": ["Las Piedras", "Canelones"],
+    "Maldonado": ["Maldonado"]
+  },
+  "Estados Unidos": {
+    "Califórnia": ["Los Angeles", "San Diego", "San Francisco"],
+    "Flórida": ["Miami", "Orlando"],
+    "Nova York": ["Nova York"],
+    "Texas": ["Houston", "Dallas", "Austin"],
+    "Illinois": ["Chicago"],
+    "Washington": ["Seattle"]
+  }
+};
+
+let currentStep = 0;
+let selectedCrest = crests[0];
+let selectedStadium = {
+  name: "Campo comunitário",
+  capacity: 1000,
+  price: 0
+};
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function formatNumber(number) {
+  return Number(number).toLocaleString("pt-BR");
+}
+
+function voltarMenu() {
+  window.location.href = "menu.html";
+}
+
+function irParaElenco() {
+  window.location.href = "elenco.html";
+}
+
+function renderCrests() {
+  $("crestGrid").innerHTML = "";
+
+  crests.forEach(crest => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "crest-option" + (crest === selectedCrest ? " selected" : "");
+    button.textContent = crest;
+    button.setAttribute("aria-label", "Escolher escudo " + crest);
+
+    button.addEventListener("click", () => {
+      selectedCrest = crest;
+      renderCrests();
+      updatePreview();
+    });
+
+    $("crestGrid").appendChild(button);
+  });
+}
+
+function updatePreview() {
+  const name = $("clubName").value.trim() || "Seu clube";
+  const shortName = $("shortName").value.trim().toUpperCase() || "SIG";
+  const nickname = $("nickname").value.trim() || "Apelido do clube";
+  const primary = $("primaryColor").value;
+
+  $("crestPreview").textContent = selectedCrest;
+  $("crestPreview").style.border = "2px solid " + primary;
+  $("clubPreview").textContent = name;
+  $("clubPreviewInfo").textContent = shortName + " • " + nickname;
+  $("clubPreview").style.color = primary;
+
+  $("reviewCrest").textContent = selectedCrest;
+  $("reviewCrest").style.border = "2px solid " + primary;
+  $("reviewName").textContent = name;
+  $("reviewName").style.color = primary;
+  $("reviewShort").textContent = shortName;
+
+  $("successCrest").textContent = selectedCrest;
+}
+
+function updateLocations() {
+  const country = $("country").value;
+  const regions = locationData[country] || {};
+  const regionSelect = $("region");
+  const citySelect = $("city");
+
+  regionSelect.innerHTML = "";
+  Object.keys(regions).forEach(region => {
+    const option = document.createElement("option");
+    option.value = region;
+    option.textContent = region;
+    regionSelect.appendChild(option);
+  });
+
+  updateCities();
+}
+
+function updateCities() {
+  const country = $("country").value;
+  const region = $("region").value;
+  const cities = (locationData[country] && locationData[country][region]) || [];
+  const citySelect = $("city");
+
+  citySelect.innerHTML = "";
+
+  cities.forEach(city => {
+    const option = document.createElement("option");
+    option.value = city;
+    option.textContent = city;
+    citySelect.appendChild(option);
+  });
+
+  if (!cities.length) {
+    const option = document.createElement("option");
+    option.value = "Cidade principal";
+    option.textContent = "Cidade principal";
+    citySelect.appendChild(option);
+  }
+}
+
+function getCity() {
+  return $("customCity").value.trim() || $("city").value || "Cidade principal";
+}
+
+function getFans() {
+  const fanbase = $("fanbase").value;
+
+  if (fanbase === "national") return 30000;
+  if (fanbase === "international") return 300000;
+  return 3000;
+}
+
+function getFanbaseLabel() {
+  const fanbase = $("fanbase").value;
+
+  if (fanbase === "national") return "Nacional";
+  if (fanbase === "international") return "Internacional";
+  return "Regional";
+}
+
+function getCompetition() {
+  const country = $("country").value;
+
+  const competitions = {
+    "Brasil": "Última divisão estadual",
+    "Portugal": "Divisão distrital",
+    "Espanha": "Divisão regional",
+    "Inglaterra": "Divisão regional",
+    "Itália": "Divisão regional",
+    "Alemanha": "Liga regional",
+    "França": "Divisão regional",
+    "Argentina": "Liga regional",
+    "Uruguai": "Divisão regional",
+    "Estados Unidos": "Liga regional"
+  };
+
+  return competitions[country] || "Divisão regional";
+}
+
+function getClubData() {
+  const country = $("country").value;
+  const region = $("region").value;
+  const city = getCity();
+  const name = $("clubName").value.trim();
+  const shortName = $("shortName").value.trim().toUpperCase();
+  const nickname = $("nickname").value.trim();
+  const primaryColor = $("primaryColor").value;
+  const secondaryColor = $("secondaryColor").value;
+  const ticketPrice = Number($("ticketPrice").value);
+
+  return {
+    name,
+    clubName: name,
+    shortName,
+    short: shortName,
+    nickname,
+    crest: selectedCrest,
+    logo: selectedCrest,
+    primaryColor,
+    secondaryColor,
+    country,
+    region,
+    state: region,
+    city,
+    location: city + ", " + region + ", " + country,
+    stadium: $("stadiumName").value.trim() || selectedStadium.name,
+    stadiumName: $("stadiumName").value.trim() || selectedStadium.name,
+    stadiumCapacity: selectedStadium.capacity,
+    capacity: selectedStadium.capacity,
+    stadiumCost: selectedStadium.price,
+    fanbase: $("fanbase").value,
+    fanbaseLabel: getFanbaseLabel(),
+    fans: getFans(),
+    supporters: getFans(),
+    ticketPrice,
+    competition: getCompetition(),
+    division: getCompetition(),
+    budget: 2500000,
+    balance: 2500000,
+    createdAt: new Date().toISOString(),
+    version: 1
+  };
+}
+
+function validateStep(step) {
+  if (step === 0) {
+    if (!$("clubName").value.trim()) {
+      alert("Digite o nome do seu clube.");
+      $("clubName").focus();
+      return false;
+    }
+
+    if (!$("shortName").value.trim()) {
+      alert("Digite uma sigla para o clube.");
+      $("shortName").focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  if (step === 1) {
+    if (!$("country").value || !$("region").value || !getCity()) {
+      alert("Escolha o país, a região e a cidade do clube.");
+      return false;
+    }
+
+    return true;
+  }
+
+  if (step === 2) {
+    if (!$("stadiumName").value.trim()) {
+      $("stadiumName").value = selectedStadium.name;
+    }
+
+    return true;
+  }
+
+  return true;
+}
+
+function renderReview() {
+  const data = getClubData();
+
+  $("reviewName").textContent = data.name;
+  $("reviewShort").textContent = data.shortName;
+  $("reviewCrest").textContent = data.crest;
+  $("successName").textContent = data.name + " criado!";
+
+  const rows = [
+    ["Nome", data.name],
+    ["Sigla", data.shortName],
+    ["Apelido", data.nickname || "Não definido"],
+    ["País", data.country],
+    ["Região", data.region],
+    ["Cidade", data.city],
+    ["Estádio", data.stadium],
+    ["Capacidade", formatNumber(data.stadiumCapacity) + " pessoas"],
+    ["Torcida", data.fanbaseLabel + " • " + formatNumber(data.fans) + " torcedores"],
+    ["Ingresso", "R$ " + data.ticketPrice.toFixed(2).replace(".", ",")],
+    ["Competição inicial", data.competition],
+    ["Orçamento", "R$ " + formatNumber(data.budget)]
+  ];
+
+  $("reviewList").innerHTML = rows.map(([label, value]) => `
+    <div class="review-row">
+      <span>${escapeHTML(label)}</span>
+      <strong>${escapeHTML(value)}</strong>
+    </div>
+  `).join("");
+}
+
+function updateProgress() {
+  document.querySelectorAll(".progress-step").forEach((element, index) => {
+    element.classList.toggle("active", index === currentStep);
+    element.classList.toggle("done", index < currentStep);
+  });
+
+  document.querySelectorAll(".step").forEach((element, index) => {
+    element.classList.toggle("active", index === currentStep);
+  });
+
+  $("backBtn").disabled = currentStep === 0;
+  $("nextBtn").textContent = currentStep === 4 ? "Criar clube ✓" : "Continuar →";
+}
+
+function saveClub() {
+  const data = getClubData();
+
+  if (!data.name || !data.shortName) {
+    $("reviewError").textContent = "Preencha o nome e a sigla do clube antes de continuar.";
+    currentStep = 0;
+    updateProgress();
+    return;
+  }
+
+  try {
+    localStorage.setItem(CLUB_KEY, JSON.stringify(data));
+
+    // Marca o elenco como pendente de inicialização para o novo clube.
+    localStorage.setItem("footballManagerClubCreated", "true");
+
+    $("creationCard").querySelectorAll(".step").forEach(section => {
+      section.style.display = "none";
+    });
+
+    $("navigationActions").style.display = "none";
+    $("progress").style.display = "none";
+    $("successScreen").classList.add("active");
+    $("successName").textContent = data.name + " criado!";
+  } catch (error) {
+    $("reviewError").textContent =
+      "Não foi possível salvar o clube no navegador. Confira se o armazenamento local está habilitado.";
+  }
+}
+
+$("backBtn").addEventListener("click", () => {
+  if (currentStep > 0) {
+    currentStep--;
+    updateProgress();
+  }
+});
+
+$("nextBtn").addEventListener("click", () => {
+  if (!validateStep(currentStep)) return;
+
+  if (currentStep < 4) {
+    currentStep++;
+
+    if (currentStep === 4) {
+      renderReview();
+    }
+
+    updateProgress();
+  } else {
+    saveClub();
+  }
+});
+
+$("country").addEventListener("change", updateLocations);
+$("region").addEventListener("change", updateCities);
+
+[
+  "clubName", "shortName", "nickname",
+  "primaryColor", "secondaryColor"
+].forEach(id => {
+  $(id).addEventListener("input", updatePreview);
+  $(id).addEventListener("change", updatePreview);
+});
+
+$("fanbase").addEventListener("change", () => {
+  $("fansPreview").textContent = formatNumber(getFans());
+});
+
+document.querySelectorAll(".stadium-option").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".stadium-option").forEach(option => {
+      option.classList.remove("selected");
+    });
+
+    button.classList.add("selected");
+
+    selectedStadium = {
+      name: button.querySelector("strong").textContent.replace(/^🏟️\s*/, ""),
+      capacity: Number(button.dataset.capacity),
+      price: Number(button.dataset.price)
+    };
+
+    $("stadiumName").value = selectedStadium.name;
+  });
+});
+
+// Inicialização
+renderCrests();
+updateLocations();
+updatePreview();
+$("fansPreview").textContent = formatNumber(getFans());
+
+try {
+  const savedClub = JSON.parse(localStorage.getItem(CLUB_KEY) || "null");
+
+  if (savedClub && savedClub.name) {
+    $("clubName").value = savedClub.name || "";
+    $("shortName").value = savedClub.shortName || savedClub.short || "";
+    $("nickname").value = savedClub.nickname || "";
+    $("primaryColor").value = savedClub.primaryColor || "#22c55e";
+    $("secondaryColor").value = savedClub.secondaryColor || "#f8fafc";
+    selectedCrest = savedClub.crest || savedClub.logo || "🛡️";
+
+    if (locationData[savedClub.country]) {
+      $("country").value = savedClub.country;
+      updateLocations();
+
+      if (locationData[savedClub.country][savedClub.region]) {
+        $("region").value = savedClub.region;
+        updateCities();
+      }
+
+      if ([...$("city").options].some(option => option.value === savedClub.city)) {
+        $("city").value = savedClub.city;
+      }
+    }
+
+    $("customCity").value = savedClub.city || "";
+    $("stadiumName").value = savedClub.stadiumName || savedClub.stadium || "";
+
+    const stadiumButton = [...document.querySelectorAll(".stadium-option")]
+      .find(button => Number(button.dataset.capacity) === Number(savedClub.stadiumCapacity || savedClub.capacity));
+
+    if (stadiumButton) stadiumButton.click();
+
+    if (savedClub.fanbase) $("fanbase").value = savedClub.fanbase;
+    if (savedClub.ticketPrice) $("ticketPrice").value = String(savedClub.ticketPrice);
+  }
+} catch (error) {
+  console.warn("Não foi possível carregar os dados anteriores do clube.", error);
+}
+
+renderCrests();
+updatePreview();
+$("fansPreview").textContent = formatNumber(getFans());
+</script>
+</body>
+</html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elenco | Football Manager</title>
+<style>
+:root{
+  --bg:#080d16;--panel:#111a29;--panel2:#19263a;
+  --green:#39e58c;--text:#f3f6fb;--muted:#91a3ba;
+  --border:#29384d;--red:#ff6868;--yellow:#ffd166;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 4%;background:#0b111d;border-bottom:1px solid var(--border)}
+.brand{font-weight:900;letter-spacing:1px}.brand span{color:var(--green)}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{border:1px solid var(--border);border-radius:9px;padding:10px 13px;background:var(--panel2);color:var(--text)}
+button.primary,.primary{background:var(--green);color:#07150e;border-color:var(--green);font-weight:800}
+button.danger{color:#ff9b9b}
+button:disabled{opacity:.45;cursor:not-allowed}
+.container{width:min(1400px,96%);margin:22px auto 50px}
+.clubbar{display:flex;align-items:center;gap:15px;padding:18px;background:linear-gradient(130deg,#13283a,#111a29);border:1px solid var(--border);border-radius:15px;margin-bottom:18px}
+.crest{width:65px;height:65px;display:grid;place-items:center;border-radius:14px;background:#0a1220;font-size:39px;flex-shrink:0}
+.clubbar h1{margin:0 0 6px;font-size:clamp(20px,4vw,30px)}
+.muted{color:var(--muted)}.small{font-size:12px;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:16px}
+.stat span{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+.stat strong{font-size:clamp(17px,3vw,24px);overflow-wrap:anywhere}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:6px}
+.tab{white-space:nowrap}.tab.active{border-color:var(--green);background:#123328;color:var(--green)}
+.page{display:none}.page.active{display:block}
+.panel{margin-bottom:15px;min-width:0}
+.panel h2{margin:0 0 13px;font-size:19px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{background:#0a1220;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;max-width:100%;min-width:0}
+input:focus,select:focus{outline:1px solid var(--green);border-color:var(--green)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}
+th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--border)}
+th{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px}
+tbody tr:hover{background:#ffffff06}
+.player-name{font-weight:800}
+.pos{display:inline-block;padding:4px 7px;border-radius:5px;background:#20334a;font-size:11px}
+.ovr{color:var(--green);font-weight:900}
+.value{font-weight:700}
+.inline-btn{padding:6px 9px;font-size:12px}
+.notice{padding:12px;border:1px solid #296b50;background:#10281f;border-radius:9px;color:#b7f4d1;font-size:13px;line-height:1.5;margin:12px 0}
+.warning{border-color:#6e5830;background:#2a2110;color:#ffe2a1}
+.error{border-color:#713c45;background:#2b1419;color:#ffb9c0}
+.hidden{display:none!important}
+.pitch{background:linear-gradient(180deg,#155c3d,#10452f);border:2px solid #398a60;border-radius:15px;padding:20px;min-height:370px;display:flex;flex-direction:column;justify-content:space-around;gap:18px;overflow:hidden}
+.pitch-row{display:flex;justify-content:space-around;align-items:center;gap:8px;flex-wrap:wrap}
+.slot{min-width:95px;max-width:140px;text-align:center;padding:10px 6px;background:#0a1622dd;border:1px solid #ffffff55;border-radius:10px}
+.slot strong{display:block;font-size:12px;margin:5px 0}
+.slot small{color:#d2e8dc;font-size:10px}
+.slot select{width:100%;padding:5px;font-size:11px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:12px;color:var(--muted)}
+.result{font-size:32px;font-weight:900;text-align:center;margin:15px 0}
+.result span{color:var(--green)}
+.match-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.statline{background:#0a1220;padding:11px;border-radius:8px}
+.statline div{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:7px}
+.bar{height:6px;background:#263449;border-radius:10px;overflow:hidden}
+.bar div{height:100%;background:var(--green)}
+.log{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
+@media(max-width:700px){
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .form-grid{grid-template-columns:1fr}
+ .clubbar{align-items:flex-start}
+ .header-actions button{padding:8px;font-size:12px}
+ .slot{min-width:80px}
+ .pitch{padding:10px;min-height:330px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">FOOTBALL <span>MANAGER</span></div>
+  <div class="header-actions">
+    <button onclick="goMenu()">← Menu</button>
+    <button onclick="saveGame(true)">Salvar agora</button>
+  </div>
+</header>
+
+<div class="container">
+  <section class="clubbar">
+    <div class="crest" id="clubCrest">🛡️</div>
+    <div style="min-width:0">
+      <h1 id="clubName">Carregando clube...</h1>
+      <div class="muted small" id="clubInfo">Preparando modo carreira</div>
+      <div class="muted small" id="stadiumInfo"></div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><span>Orçamento disponível</span><strong id="budgetStat">R$ 0</strong></div>
+    <div class="stat"><span>Valor do elenco</span><strong id="squadValueStat">R$ 0</strong></div>
+    <div class="stat"><span>Folha salarial / mês</span><strong id="wageStat">R$ 0</strong></div>
+    <div class="stat"><span>Jogadores no elenco</span><strong id="countStat">0</strong></div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="squad">Elenco</button>
+    <button class="tab" data-page="tactics">Tática</button>
+    <button class="tab" data-page="market">Mercado</button>
+    <button class="tab" data-page="matches">Partidas</button>
+    <button class="tab" data-page="finance">Finanças</button>
+    <button class="tab" data-page="database">Base de jogadores</button>
+  </nav>
+
+  <main>
+    <section class="page active" id="page-squad">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Meu elenco</h2>
+            <div class="muted small">Plantel inicial de 18 jogadores. Overall inicial entre 45 e 60.</div>
+          </div>
+          <div class="controls">
+            <input id="squadSearch" placeholder="Buscar jogador..." style="width:165px">
+            <select id="positionFilter">
+              <option value="">Todas posições</option>
+              <option>GOL</option><option>ZAG</option><option>LD</option><option>LE</option>
+              <option>VOL</option><option>MC</option><option>MEI</option><option>PD</option>
+              <option>PE</option><option>ATA</option>
+            </select>
+            <button onclick="renderSquad()">Filtrar</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Jogador</th><th>Pos.</th><th>Idade</th><th>OVR</th><th>Valor</th><th>Salário/mês</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="squadTable"></tbody>
+          </table>
+        </div>
+        <div class="notice">O valor de mercado e o salário são valores simulados dentro do jogo, não cotações oficiais. A base real poderá trazer valores externos quando você importar os dados.</div>
+      </div>
+      <div class="panel">
+        <h2>Resumo do plantel</h2>
+        <div id="squadSummary" class="muted small"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-tactics">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Formação e escalação</h2><div class="muted small">Selecione os jogadores para cada posição.</div></div>
+          <div class="controls">
+            <select id="formation">
+              <option value="4-4-2">4-4-2</option>
+              <option value="4-3-3">4-3-3</option>
+              <option value="4-2-3-1">4-2-3-1</option>
+              <option value="3-5-2">3-5-2</option>
+              <option value="5-3-2">5-3-2</option>
+            </select>
+            <select id="mentality">
+              <option value="balanced">Equilibrada</option>
+              <option value="attacking">Ofensiva</option>
+              <option value="defensive">Defensiva</option>
+            </select>
+            <button class="primary" onclick="autoLineup()">Escalação automática</button>
+          </div>
+        </div>
+        <div class="pitch" id="pitch"></div>
+        <div class="notice" id="tacticsSummary"></div>
+      </div>
+      <div class="panel">
+        <h2>Banco de reservas</h2>
+        <div id="benchList" class="muted small"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-market">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Mercado de transferências</h2><div class="muted small">Jogadores fictícios disponíveis e atletas reais importados.</div></div>
+          <div class="controls">
+            <input id="marketSearch" placeholder="Nome ou posição..." style="width:190px">
+            <button onclick="renderMarket()">Buscar</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Jogador</th><th>Pos.</th><th>Idade</th><th>OVR</th><th>Valor pedido</th><th>Salário/mês</th><th>Origem</th><th>Ação</th></tr></thead>
+            <tbody id="marketTable"></tbody>
+          </table>
+        </div>
+        <div class="notice warning">Antes de contratar, confira o orçamento e o salário. O jogo não deve permitir uma contratação que deixe o orçamento negativo.</div>
+      </div>
+      <div class="panel">
+        <h2>Propostas recebidas</h2>
+        <div id="offersList" class="muted small">Nenhuma proposta recebida.</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-matches">
+      <div class="panel">
+        <h2>Central de partidas</h2>
+        <p class="muted small">Simule partidas instantâneas. Os resultados afetam o histórico e a reputação da equipe.</p>
+        <div class="form-grid">
+          <div class="field"><label>Adversário</label><input id="opponentName" value="Rival FC" maxlength="40"></div>
+          <div class="field"><label>Força do adversário (1 a 100)</label><input id="opponentStrength" type="number" min="1" max="100" value="52"></div>
+          <div class="field"><label>Local</label><select id="matchVenue"><option value="home">Em casa</option><option value="away">Fora de casa</option></select></div>
+        </div>
+        <div style="margin-top:16px"><button class="primary" onclick="playMatch()">▶ Simular partida</button></div>
+        <div id="matchResult" class="hidden">
+          <div class="result" id="scoreline"></div>
+          <div class="muted" id="matchMeta" style="text-align:center;margin-bottom:18px"></div>
+          <div class="match-stats" id="matchStats"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Histórico de partidas</h2>
+        <div id="matchHistory"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-finance">
+      <div class="panel">
+        <h2>Finanças do clube</h2>
+        <div class="stats">
+          <div class="stat"><span>Orçamento atual</span><strong id="financeBudget">R$ 0</strong></div>
+          <div class="stat"><span>Receita acumulada</span><strong id="revenueStat">R$ 0</strong></div>
+          <div class="stat"><span>Despesas acumuladas</span><strong id="expensesStat">R$ 0</strong></div>
+          <div class="stat"><span>Saldo líquido acumulado</span><strong id="netStat">R$ 0</strong></div>
+        </div>
+        <h2>Contas recentes</h2>
+        <div id="financeLog"></div>
+        <div class="controls" style="margin-top:16px">
+          <button onclick="payMonthlyWages()">Pagar folha salarial do mês</button>
+          <button onclick="receiveSponsorship()">Receber patrocínio simulado</button>
+        </div>
+        <div class="notice warning">As ações financeiras são simuladas. Pagar a folha salarial debita o valor do orçamento, então use essa opção quando quiser avançar o mês financeiro.</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-database">
+      <div class="panel">
+        <h2>Base de jogadores</h2>
+        <p class="muted small">Importe um arquivo JSON com jogadores para ampliar o mercado. O jogo não inventa que uma base externa contém 1.000 jogadores reais: é preciso importar um conjunto de dados válido.</p>
+        <div class="notice">Formato aceito: um array JSON de objetos com campos como <b>name</b>, <b>position</b>, <b>age</b>, <b>overall</b>, <b>value</b>, <b>wage</b>, <b>club</b> e <b>real</b>. Também são aceitos alguns nomes alternativos em português.</div>
+        <div class="field">
+          <label for="databaseFile">Arquivo JSON de jogadores</label>
+          <input type="file" id="databaseFile" accept=".json,application/json">
+        </div>
+        <div class="controls" style="margin-top:12px">
+          <button class="primary" onclick="importDatabase()">Importar base JSON</button>
+          <button onclick="exportDatabase()">Exportar base importada</button>
+        </div>
+        <div id="databaseStatus" class="notice hidden"></div>
+        <div class="stats" style="margin-top:16px">
+          <div class="stat"><span>Jogadores importados</span><strong id="dbCount">0</strong></div>
+          <div class="stat"><span>Jogadores reais marcados</span><strong id="dbRealCount">0</strong></div>
+          <div class="stat"><span>Disponíveis no mercado</span><strong id="dbAvailableCount">0</strong></div>
+          <div class="stat"><span>Jogadores no elenco</span><strong id="dbSquadCount">0</strong></div>
+        </div>
+        <p class="muted small">Para usar avaliações reais de mercado, importe dados de uma fonte cuja utilização e licença sejam permitidas. Os valores importados continuam sendo referências, não garantias de preço de venda.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<footer>Football Manager • Salvamento local automático</footer>
+
+<script>
+"use strict";
+
+const CLUB_KEY = "footballManagerClub";
+const SAVE_KEY = "fm_save_v1";
+const DB_KEY = "fm_player_database_v1";
+
+const money = n => new Intl.NumberFormat("pt-BR", {
+  style:"currency", currency:"BRL", maximumFractionDigits:0
+}).format(Number(n)||0);
+const number = n => new Intl.NumberFormat("pt-BR").format(Number(n)||0);
+const clamp = (n,min,max) => Math.max(min,Math.min(max,Number(n)||min));
+const uid = () => "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+function readJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    console.error("Erro lendo armazenamento:", key, error);
+    return fallback;
+  }
+}
+
+function writeJSON(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function loadClub() {
+  const club = readJSON(CLUB_KEY, null);
+  if (!club || !(club.name || club.clubName || club.nome)) {
+    return null;
+  }
+  return club;
+}
+
+let club = loadClub();
+
+if (!club) {
+  document.body.innerHTML = `
+    <div style="max-width:650px;margin:70px auto;padding:24px;font-family:Arial;color:#f3f6fb;background:#111a29;border-radius:15px">
+      <h1>Nenhum clube encontrado</h1>
+      <p>Crie seu clube primeiro. O elenco precisa dos dados salvos em <code>footballManagerClub</code>.</p>
+      <button onclick="location.href='criar-time.html'" style="padding:12px;border-radius:8px">Criar clube</button>
+      <button onclick="location.href='menu.html'" style="padding:12px;border-radius:8px">Menu principal</button>
+    </div>`;
+  throw new Error("Crie um clube antes de abrir o elenco.");
+}
+
+const clubName = club.name || club.clubName || club.nome || "Meu Clube";
+const clubShort = club.shortName || club.short || club.sigla || clubName.slice(0,3).toUpperCase();
+const clubCrest = club.crest || club.logo || "🛡️";
+const clubStadium = club.stadiumName || club.stadium || "Estádio Municipal";
+const clubCity = club.city || club.location || "Cidade não informada";
+const clubCountry = club.country || "";
+const clubCapacity = Number(club.stadiumCapacity || club.capacity || 1000);
+const initialBudget = Number(club.budget ?? club.balance ?? 2500000);
+
+const firstNames = [
+ "Lucas","Gabriel","Matheus","Pedro","Rafael","João","Bruno","Felipe","Caio",
+ "Diego","André","Vitor","Daniel","Gustavo","Thiago","Igor","Leonardo","Samuel",
+ "Enzo","Davi","Arthur","Renan","Vinícius","Murilo","Eduardo","Heitor","Nicolas",
+ "Alex","Fernando","Marcos","Wesley","Danilo","Cauã","Luiz","Rodrigo","Fábio"
+];
+const lastNames = [
+ "Silva","Santos","Oliveira","Souza","Costa","Pereira","Almeida","Ferreira",
+ "Rodrigues","Carvalho","Ribeiro","Lima","Gomes","Martins","Araújo","Barbosa",
+ "Melo","Cardoso","Teixeira","Moreira","Nunes","Mendes","Freitas","Vieira",
+ "Monteiro","Correia","Batista","Dias","Campos","Machado","Rocha","Moura"
+];
+const positions = ["GOL","ZAG","ZAG","LD","LE","VOL","VOL","MC","MC","MEI","PD","PE","ATA"];
+const positionNames = {
+ GOL:"Goleiro",ZAG:"Zagueiro",LD:"Lateral-direito",LE:"Lateral-esquerdo",
+ VOL:"Volante",MC:"Meio-campista",MEI:"Meia ofensivo",PD:"Ponta-direita",
+ PE:"Ponta-esquerda",ATA:"Atacante"
+};
+const formations = {
+ "4-4-2":[["GOL"],["LE","ZAG","ZAG","LD"],["MC","VOL","MC","MEI"],["ATA","ATA"]],
+ "4-3-3":[["GOL"],["LE","ZAG","ZAG","LD"],["VOL","MC","MEI"],["PE","ATA","PD"]],
+ "4-2-3-1":[["GOL"],["LE","ZAG","ZAG","LD"],["VOL","VOL"],["PE","MEI","PD"],["ATA"]],
+ "3-5-2":[["GOL"],["ZAG","ZAG","ZAG"],["LE","VOL","MC","MEI","LD"],["ATA","ATA"]],
+ "5-3-2":[["GOL"],["LE","ZAG","ZAG","ZAG","LD"],["VOL","MC","MEI"],["ATA","ATA"]]
+};
+
+function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function makePlayer(name,position,age,overall,real=false,extra={}) {
+ const ovr=clamp(overall,35,99);
+ const estimatedValue = Math.round((Math.max(1,ovr-38)**2)*1000*(age<22?1.25:age>30?.75:1));
+ return {
+  id:extra.id || uid(),name,position,age:clamp(age,16,45),overall:ovr,
+  value:Math.max(1000,Number(extra.value ?? estimatedValue)),
+  wage:Math.max(300,Number(extra.wage ?? Math.round(ovr*85))),
+  club:extra.club || (real ? "Clube externo" : "Sem clube"),
+  real:Boolean(real),nationality:extra.nationality || "Brasil",
+  status:extra.status || "Disponível",listed:false
+ };
+}
+
+function generateInitialSquad() {
+ const plan = [
+  ["GOL",2],["ZAG",4],["LD",1],["LE",1],["VOL",2],
+  ["MC",2],["MEI",1],["PD",1],["PE",1],["ATA",3]
+ ];
+ const result=[];
+ let index=0;
+ plan.forEach(([pos,count])=>{
+  for(let i=0;i<count;i++){
+   const first=firstNames[(index*7+3)%firstNames.length];
+   const last=lastNames[(index*11+5)%lastNames.length];
+   const overall=randomInt(45,60);
+   const age=randomInt(18,34);
+   result.push(makePlayer(first+" "+last,pos,age,overall,false,{
+    wage:randomInt(650,Math.max(700,overall*110)),
+    value:randomInt(5000,60000),
+    club:clubName
+   }));
+   index++;
+  }
+ });
+ return result;
+}
+
+function initialSave() {
+ const squad=generateInitialSquad();
+ return {
+  version:2,
+  clubName,
+  clubShort,
+  createdForClub:club.name || club.clubName || club.nome,
+  budget:initialBudget,
+  initialBudget,
+  squad,
+  lineup:{},
+  formation:"4-4-2",
+  mentality:"balanced",
+  market:[],
+  offers:[],
+  matches:[],
+  financeLog:[{
+   id:uid(),date:new Date().toISOString(),type:"Inicial",
+   description:"Orçamento inicial do clube",amount:initialBudget
+  }],
+  revenue:0,
+  expenses:0,
+  month:1,
+  lastSaved:new Date().toISOString()
+ };
+}
+
+function normaliseSave(s) {
+ if(!s || !Array.isArray(s.squad)) return null;
+ s.version=2;
+ s.budget=Number(s.budget ?? initialBudget);
+ s.initialBudget=Number(s.initialBudget ?? initialBudget);
+ s.squad=s.squad.map(p=>({
+  id:p.id || uid(),
+  name:p.name || p.nome || "Jogador",
+  position:p.position || p.posicao || "MC",
+  age:clamp(p.age ?? p.idade ?? 22,16,45),
+  overall:clamp(p.overall ?? p.ovr ?? 50,35,99),
+  value:Math.max(0,Number(p.value ?? p.valor ?? 10000)),
+  wage:Math.max(0,Number(p.wage ?? p.salary ?? p.salario ?? 1000)),
+  club:p.club || p.clube || clubName,
+  real:Boolean(p.real),
+  nationality:p.nationality || p.nacionalidade || "Brasil",
+  status:p.status || "Disponível",
+  listed:Boolean(p.listed)
+ }));
+ s.market=Array.isArray(s.market)?s.market:[];
+ s.offers=Array.isArray(s.offers)?s.offers:[];
+ s.matches=Array.isArray(s.matches)?s.matches:[];
+ s.financeLog=Array.isArray(s.financeLog)?s.financeLog:[];
+ s.lineup=s.lineup && typeof s.lineup==="object"?s.lineup:{};
+ s.formation=s.formation || "4-4-2";
+ s.mentality=s.mentality || "balanced";
+ s.revenue=Number(s.revenue)||0;
+ s.expenses=Number(s.expenses)||0;
+ s.month=Number(s.month)||1;
+ return s;
+}
+
+let state=normaliseSave(readJSON(SAVE_KEY,null));
+if(!state) state=initialSave();
+
+// Só inicia um elenco novo se não existir um save válido.
+// Não substitui o clube salvo na outra chave.
+if(state.createdForClub !== (club.name || club.clubName || club.nome)) {
+ state=initialSave();
+}
+
+let database=readJSON(DB_KEY,[]);
+if(!Array.isArray(database)) database=[];
+
+function saveGame(showMessage=false) {
+ try {
+  state.clubName=clubName;
+  state.clubShort=clubShort;
+  state.createdForClub=club.name || club.clubName || club.nome;
+  state.lastSaved=new Date().toISOString();
+  writeJSON(SAVE_KEY,state);
+  writeJSON(DB_KEY,database);
+  if(showMessage) alert("Jogo salvo com sucesso.");
+  renderHeaderStats();
+ } catch(error) {
+  alert("Não foi possível salvar. Confira o armazenamento do navegador e abra o jogo pelo mesmo endereço do Live Server.");
+  console.error(error);
+ }
+}
+
+function goMenu(){saveGame();location.href="menu.html";}
+
+function logFinance(type,description,amount) {
+ state.financeLog.unshift({
+  id:uid(),date:new Date().toISOString(),type,description,amount:Number(amount)||0
+ });
+ state.financeLog=state.financeLog.slice(0,100);
+}
+
+function wageBill() {
+ return state.squad.reduce((sum,p)=>sum+Number(p.wage||0),0);
+}
+function squadValue() {
+ return state.squad.reduce((sum,p)=>sum+Number(p.value||0),0);
+}
+
+function renderHeaderStats() {
+ document.getElementById("clubCrest").textContent=clubCrest;
+ document.getElementById("clubName").textContent=clubName;
+ document.getElementById("clubInfo").textContent=
+  `${clubShort} • ${clubCity}${clubCountry ? ", "+clubCountry:""} • ${club.competition || club.division || "Divisão inicial"}`;
+ document.getElementById("stadiumInfo").textContent=
+  `${clubStadium} • ${number(clubCapacity)} lugares • Ingressos: ${money(club.ticketPrice ?? 5)}`;
+ document.getElementById("budgetStat").textContent=money(state.budget);
+ document.getElementById("squadValueStat").textContent=money(squadValue());
+ document.getElementById("wageStat").textContent=money(wageBill());
+ document.getElementById("countStat").textContent=number(state.squad.length);
+ document.getElementById("financeBudget").textContent=money(state.budget);
+ document.getElementById("revenueStat").textContent=money(state.revenue);
+ document.getElementById("expensesStat").textContent=money(state.expenses);
+ document.getElementById("netStat").textContent=money(state.revenue-state.expenses);
+ document.getElementById("dbCount").textContent=number(database.length);
+ document.getElementById("dbRealCount").textContent=number(database.filter(p=>p.real).length);
+ document.getElementById("dbAvailableCount").textContent=number(state.market.length);
+ document.getElementById("dbSquadCount").textContent=number(state.squad.length);
+}
+
+function renderSquad() {
+ const query=document.getElementById("squadSearch").value.trim().toLowerCase();
+ const filter=document.getElementById("positionFilter").value;
+ const players=state.squad.filter(p=>
+  p.name.toLowerCase().includes(query) && (!filter || p.position===filter)
+ );
+ const tbody=document.getElementById("squadTable");
+ tbody.innerHTML=players.map(p=>`
+ <tr>
+  <td><span class="player-name">${escapeHTML(p.name)}</span>${p.real?'<div class="muted small">Jogador real importado</div>':""}</td>
+  <td><span class="pos">${escapeHTML(p.position)}</span></td>
+  <td>${p.age}</td><td class="ovr">${p.overall}</td>
+  <td class="value">${money(p.value)}</td><td>${money(p.wage)}</td>
+  <td>${escapeHTML(p.status || "Disponível")}</td>
+  <td><div class="controls">
+   <button class="inline-btn" onclick="toggleListed('${p.id}')">${p.listed?"Retirar do mercado":"Colocar à venda"}</button>
+   <button class="inline-btn" onclick="editPlayer('${p.id}')">Editar</button>
+   <button class="inline-btn danger" onclick="releasePlayer('${p.id}')">Dispensar</button>
+  </div></td>
+ </tr>`).join("");
+ if(!players.length) tbody.innerHTML='<tr><td colspan="8" class="muted">Nenhum jogador encontrado.</td></tr>';
+
+ const counts={};
+ state.squad.forEach(p=>counts[p.position]=(counts[p.position]||0)+1);
+ document.getElementById("squadSummary").innerHTML=
+  `Goleiros: ${counts.GOL||0} • Zagueiros: ${counts.ZAG||0} • Laterais: ${(counts.LD||0)+(counts.LE||0)} • Volantes: ${counts.VOL||0} • Meias: ${(counts.MC||0)+(counts.MEI||0)} • Pontas: ${(counts.PD||0)+(counts.PE||0)} • Atacantes: ${counts.ATA||0}.`;
+ renderHeaderStats();
+}
+
+function toggleListed(id) {
+ const p=state.squad.find(x=>x.id===id);
+ if(!p)return;
+ p.listed=!p.listed;
+ p.status=p.listed?"À venda":"Disponível";
+ if(p.listed && !state.market.some(x=>x.id===p.id)) state.market.push({...p,askingPrice:p.value});
+ if(!p.listed) state.market=state.market.filter(x=>x.id!==p.id);
+ saveGame();renderAll();
+}
+
+function editPlayer(id) {
+ const p=state.squad.find(x=>x.id===id);
+ if(!p)return;
+ const newWage=prompt("Novo salário mensal de "+p.name, String(p.wage));
+ if(newWage===null)return;
+ const wage=Number(newWage);
+ if(!Number.isFinite(wage)||wage<0){alert("Salário inválido.");return;}
+ const newValue=prompt("Valor de mercado de "+p.name, String(p.value));
+ if(newValue===null)return;
+ const value=Number(newValue);
+ if(!Number.isFinite(value)||value<0){alert("Valor inválido.");return;}
+ p.wage=wage;p.value=value;
+ saveGame();renderAll();
+}
+
+function releasePlayer(id) {
+ const p=state.squad.find(x=>x.id===id);
+ if(!p)return;
+ if(!confirm("Dispensar "+p.name+"? Essa ação não gera receita de transferência."))return;
+ state.squad=state.squad.filter(x=>x.id!==id);
+ state.market=state.market.filter(x=>x.id!==id);
+ Object.keys(state.lineup).forEach(slot=>{if(state.lineup[slot]===id)delete state.lineup[slot];});
+ saveGame();renderAll();
+}
+
+function createMarket() {
+ if(state.market.length) return;
+ const availableNames=[
+  ["Ruan Barbosa","GOL",23,54,38000,4200],
+  ["Mateus Farias","ZAG",25,57,55000,5100],
+  ["Caíque Ramos","LD",21,52,28000,3200],
+  ["João Viana","LE",24,55,42000,3900],
+  ["Ítalo Mendes","VOL",27,58,60000,5600],
+  ["Renato Pires","MC",22,56,48000,4300],
+  ["Yuri Freire","MEI",20,59,75000,6000],
+  ["Anderson Reis","PD",24,57,65000,5700],
+  ["Luan Matos","PE",19,55,50000,4000],
+  ["Breno Duarte","ATA",26,60,85000,7200],
+  ["Samuel Tavares","ZAG",20,51,22000,2800],
+  ["Dênis Rocha","ATA",30,58,45000,6500],
+  ["Marquinhos Lopes","VOL",23,53,32000,3500],
+  ["Elias Nascimento","GOL",19,49,14000,1800],
+  ["Wellington Prado","MC",28,54,26000,3900],
+  ["Alexsandro Lima","ATA",21,56,52000,4600],
+  ["Diego Martins","ZAG",31,52,16000,4000],
+  ["Pedro Henrique","MEI",22,57,65000,5100],
+  ["Caio Fernandes","PD",25,55,40000,4300],
+  ["Rafael Maciel","LE",20,50,18000,2300]
+ ];
+ state.market=availableNames.map(([name,pos,age,ovr,value,wage])=>
+  makePlayer(name,pos,age,ovr,false,{value,wage,club:"Clube externo"})
+ );
+}
+
+function renderMarket() {
+ const query=document.getElementById("marketSearch").value.trim().toLowerCase();
+ const available=state.market.filter(p=>
+  !state.squad.some(s=>s.id===p.id) &&
+  (p.name.toLowerCase().includes(query)||p.position.toLowerCase().includes(query)||String(p.club||"").toLowerCase().includes(query))
+ );
+ const tbody=document.getElementById("marketTable");
+ tbody.innerHTML=available.slice(0,300).map(p=>`
+ <tr>
+  <td><span class="player-name">${escapeHTML(p.name)}</span>${p.real?'<div class="muted small">Real</div>':""}</td>
+  <td><span class="pos">${escapeHTML(p.position)}</span></td><td>${p.age}</td>
+  <td class="ovr">${p.overall}</td><td>${money(p.askingPrice ?? p.value)}</td>
+  <td>${money(p.wage)}</td><td>${escapeHTML(p.club || "Sem clube")}</td>
+  <td><button class="inline-btn primary" onclick="buyPlayer('${p.id}')">Contratar</button></td>
+ </tr>`).join("");
+ if(!available.length)tbody.innerHTML='<tr><td colspan="8" class="muted">Nenhum jogador disponível para esta busca.</td></tr>';
+ renderOffers();
+ renderHeaderStats();
+}
+
+function buyPlayer(id) {
+ const p=state.market.find(x=>x.id===id);
+ if(!p)return;
+ const price=Number(p.askingPrice ?? p.value);
+ if(state.budget<price){alert("Orçamento insuficiente para pagar a transferência.");return;}
+ if(state.squad.some(x=>x.id===p.id)){alert("Esse jogador já está no seu elenco.");return;}
+ state.budget-=price;
+ state.expenses+=price;
+ logFinance("Transferência","Contratação de "+p.name,-price);
+ state.squad.push({...p,id:p.id || uid(),club:clubName,status:"Disponível",listed:false});
+ state.market=state.market.filter(x=>x.id!==id);
+ saveGame();renderAll();
+ alert(p.name+" contratado por "+money(price)+".");
+}
+
+function renderOffers() {
+ const element=document.getElementById("offersList");
+ if(!state.offers.length){element.textContent="Nenhuma proposta recebida.";return;}
+ element.innerHTML=state.offers.map(o=>`
+ <div class="log">
+  <b>${escapeHTML(o.club)}</b> oferece ${money(o.amount)} por ${escapeHTML(o.playerName)}.
+  <div class="controls" style="margin-top:8px">
+   <button class="inline-btn primary" onclick="resolveOffer('${o.id}',true)">Aceitar</button>
+   <button class="inline-btn" onclick="resolveOffer('${o.id}',false)">Recusar</button>
+  </div>
+ </div>`).join("");
+}
+
+function resolveOffer(id,accept) {
+ const offer=state.offers.find(o=>o.id===id);
+ if(!offer)return;
+ if(accept) {
+  const player=state.squad.find(p=>p.id===offer.playerId);
+  if(player) {
+   state.squad=state.squad.filter(p=>p.id!==player.id);
+   state.market=state.market.filter(p=>p.id!==player.id);
+   Object.keys(state.lineup).forEach(slot=>{if(state.lineup[slot]===player.id)delete state.lineup[slot];});
+   state.budget+=offer.amount;state.revenue+=offer.amount;
+   logFinance("Venda","Venda de "+player.name+" para "+offer.club,offer.amount);
+  }
+ }
+ state.offers=state.offers.filter(o=>o.id!==id);
+ saveGame();renderAll();
+}
+
+function maybeGenerateOffer() {
+ const listed=state.squad.filter(p=>p.listed);
+ if(!listed.length || Math.random()>.35)return;
+ const p=listed[randomInt(0,listed.length-1)];
+ const amount=Math.round(p.value* (0.85+Math.random()*.35));
+ state.offers.unshift({
+  id:uid(),playerId:p.id,playerName:p.name,club:["União FC","Estrela Azul","Atlético Central","Real do Norte"][randomInt(0,3)],amount
+ });
+ state.offers=state.offers.slice(0,20);
+}
+
+function formationSlots() {
+ return formations[state.formation] || formations["4-4-2"];
+}
+
+function getLineupPlayers() {
+ return Object.values(state.lineup).map(id=>state.squad.find(p=>p.id===id)).filter(Boolean);
+}
+
+function autoLineup() {
+ state.lineup={};
+ const used=new Set();
+ const slots=formationSlots();
+ let counter=0;
+ slots.forEach((row,rowIndex)=>{
+  row.forEach((pos,colIndex)=>{
+   const candidates=state.squad.filter(p=>!used.has(p.id)).sort((a,b)=>{
+    const scoreA=(a.position===pos?100:0)+a.overall;
+    const scoreB=(b.position===pos?100:0)+b.overall;
+    return scoreB-scoreA;
+   });
+   if(candidates.length){
+    const p=candidates[0];used.add(p.id);
+    state.lineup[rowIndex+"-"+colIndex]=p.id;
+   }
+  });
+ });
+ state.formation=document.getElementById("formation").value;
+ state.mentality=document.getElementById("mentality").value;
+ saveGame();renderTactics();
+}
+
+function renderTactics() {
+ document.getElementById("formation").value=state.formation;
+ document.getElementById("mentality").value=state.mentality;
+ const slots=formationSlots();
+ const used=new Set();
+ const pitch=document.getElementById("pitch");
+ pitch.innerHTML=slots.map((row,rowIndex)=>`
+  <div class="pitch-row">${row.map((pos,colIndex)=>{
+   const key=rowIndex+"-"+colIndex;
+   const selected=state.lineup[key] || "";
+   if(selected)used.add(selected);
+   return `<div class="slot">
+    <small>${escapeHTML(pos)}</small>
+    <select aria-label="Jogador para ${escapeHTML(pos)}" onchange="setLineup('${key}',this.value)">
+      <option value="">Escolher</option>
+      ${state.squad.filter(p=>!used.has(p.id)||p.id===selected).sort((a,b)=>b.overall-a.overall).map(p=>
+       `<option value="${p.id}" ${p.id===selected?"selected":""}>${escapeHTML(p.name)} (${p.overall})</option>`
+      ).join("")}
+    </select>
+   </div>`;
+  }).join("")}</div>`).join("");
+ const starters=getLineupPlayers();
+ const average=starters.length?Math.round(starters.reduce((s,p)=>s+p.overall,0)/starters.length):0;
+ document.getElementById("tacticsSummary").textContent=
+  `Formação ${state.formation} • Mentalidade: ${state.mentality==="attacking"?"Ofensiva":state.mentality==="defensive"?"Defensiva":"Equilibrada"} • Jogadores selecionados: ${starters.length}/${slots.flat().length} • Overall médio: ${average||"N/A"}.`;
+ const bench=state.squad.filter(p=>!starters.some(s=>s.id===p.id));
+ document.getElementById("benchList").textContent=bench.length
+  ?bench.map(p=>`${p.name} (${p.position}, OVR ${p.overall})`).join(" • ")
+  :"Nenhum reserva disponível.";
+}
+
+function setLineup(slot,id) {
+ if(id && Object.entries(state.lineup).some(([key,val])=>key!==slot && val===id)){
+  alert("Esse jogador já está escalado em outra posição.");
+  renderTactics();return;
+ }
+ if(id)state.lineup[slot]=id;else delete state.lineup[slot];
+ saveGame();renderTactics();
+}
+
+function playerTeamStrength() {
+ const players=getLineupPlayers();
+ if(players.length<11)return null;
+ const avg=players.reduce((sum,p)=>sum+p.overall,0)/players.length;
+ const bonus=state.mentality==="attacking"?2:state.mentality==="defensive"?-1:0;
+ return avg+bonus;
+}
+
+function playMatch() {
+ const opponent=document.getElementById("opponentName").value.trim()||"Rival FC";
+ const opponentStrength=clamp(document.getElementById("opponentStrength").value,1,100);
+ const venue=document.getElementById("matchVenue").value;
+ const slots=formationSlots().flat().length;
+ let starters=getLineupPlayers();
+ if(starters.length<slots) {
+  if(confirm("Sua escalação está incompleta. Deseja preencher automaticamente antes da partida?")) {
+   autoLineup();starters=getLineupPlayers();
+  } else return;
+ }
+ const strength=playerTeamStrength();
+ if(strength===null){alert("Selecione 11 jogadores para a escalação.");return;}
+ const homeBonus=venue==="home"?3:-2;
+ const mentalBonus=state.mentality==="attacking"?2:state.mentality==="defensive"?-1:0;
+ const teamScore=strength+homeBonus+mentalBonus;
+ const diff=teamScore-opponentStrength;
+ const ourGoals=clamp(Math.round(randomInt(0,2)+diff/17+Math.random()),0,6);
+ const theirGoals=clamp(Math.round(randomInt(0,2)-diff/20+Math.random()),0,6);
+ const possession=clamp(Math.round(50+diff*.65+randomInt(-8,8)),25,75);
+ const shots=clamp(Math.round(7+diff*.25+randomInt(0,8)),1,25);
+ const shotsOpp=clamp(Math.round(7-diff*.2+randomInt(0,8)),1,25);
+ const onTarget=clamp(Math.round(shots*(.25+Math.random()*.35)),0,shots);
+ const onTargetOpp=clamp(Math.round(shotsOpp*(.25+Math.random()*.35)),0,shotsOpp);
+ const corners= randomInt(1,8);
+ const fouls=randomInt(5,17);
+ const attendance=venue==="home"?Math.min(clubCapacity,Math.round((club.fans||3000)*(.15+Math.random()*.2))):0;
+ const ticketIncome=venue==="home"?attendance*Number(club.ticketPrice||5):0;
+ const prize=ourGoals>theirGoals?25000:ourGoals===theirGoals?10000:0;
+ const income=ticketIncome+prize;
+ state.budget+=income;
+ state.revenue+=income;
+ if(income)logFinance("Partida",`Receita contra ${opponent}`,income);
+ if(ourGoals>theirGoals)state.financeLog.unshift({id:uid(),date:new Date().toISOString(),type:"Bônus",description:"Bônus por vitória",amount:prize});
+ if(ourGoals>theirGoals) {
+  // Pequeno crescimento de torcida, sem multiplicações exageradas.
+  club.fans=Math.round(Number(club.fans||club.supporters||3000)*1.01);
+  club.supporters=club.fans;
+  try{writeJSON(CLUB_KEY,club);}catch(e){}
+ }
+ const match={
+  id:uid(),date:new Date().toISOString(),opponent,venue,ourGoals,theirGoals,
+  possession,shots,shotsOpp,onTarget,onTargetOpp,corners,fouls,attendance,income,
+  outcome:ourGoals>theirGoals?"Vitória":ourGoals===theirGoals?"Empate":"Derrota"
+ };
+ state.matches.unshift(match);state.matches=state.matches.slice(0,100);
+ maybeGenerateOffer();
+ saveGame();
+ document.getElementById("matchResult").classList.remove("hidden");
+ document.getElementById("scoreline").innerHTML=`${clubShort} <span>${ourGoals} x ${theirGoals}</span> ${escapeHTML(opponent)}`;
+ document.getElementById("matchMeta").textContent=
+  `${match.outcome} • ${venue==="home"?"Em casa":"Fora"} • Público: ${number(attendance)} • Receita: ${money(income)}`;
+ const stats=[
+  ["Posse de bola",possession,100-possession,"%"],
+  ["Finalizações",shots,shotsOpp,""],
+  ["No alvo",onTarget,onTargetOpp,""],
+  ["Escanteios",corners,randomInt(1,7),""],
+  ["Faltas",fouls,randomInt(5,16),""]
+ ];
+ document.getElementById("matchStats").innerHTML=stats.map(([label,a,b,suffix])=>`
+  <div class="statline"><div><span>${a}${suffix}</span><b>${escapeHTML(label)}</b><span>${b}${suffix}</span></div>
+  <div class="bar"><div style="width:${clamp((a/Math.max(1,a+b))*100,0,100)}%"></div></div></div>`).join("");
+ renderAll();
+}
+
+function renderMatchHistory() {
+ const element=document.getElementById("matchHistory");
+ if(!state.matches.length){element.innerHTML='<div class="muted small">Nenhuma partida disputada ainda.</div>';return;}
+ element.innerHTML=state.matches.map(m=>`
+  <div class="log">
+   <b>${escapeHTML(m.outcome)}</b> • ${new Date(m.date).toLocaleDateString("pt-BR")}<br>
+   ${escapeHTML(clubShort)} ${m.ourGoals} x ${m.theirGoals} ${escapeHTML(m.opponent)}
+   <span class="muted"> • ${m.venue==="home"?"Casa":"Fora"} • Receita: ${money(m.income||0)}</span>
+  </div>`).join("");
+}
+
+function payMonthlyWages() {
+ const bill=wageBill();
+ if(state.budget<bill){alert("Orçamento insuficiente para pagar a folha salarial.");return;}
+ if(!confirm("Pagar a folha mensal de "+money(bill)+"?"))return;
+ state.budget-=bill;state.expenses+=bill;state.month++;
+ logFinance("Salários","Pagamento da folha do mês "+(state.month-1),-bill);
+ saveGame();renderAll();
+}
+
+function receiveSponsorship() {
+ const amount=randomInt(15000,60000);
+ state.budget+=amount;state.revenue+=amount;
+ logFinance("Patrocínio","Receita de patrocínio simulado",amount);
+ saveGame();renderAll();
+}
+
+function renderFinance() {
+ document.getElementById("financeLog").innerHTML=state.financeLog.slice(0,50).map(item=>`
+  <div class="log"><b>${escapeHTML(item.type)}</b> • ${escapeHTML(item.description)}
+  <div class="muted small">${new Date(item.date).toLocaleString("pt-BR")} • ${money(item.amount)}</div></div>
+ `).join("") || '<div class="muted small">Nenhuma movimentação.</div>';
+}
+
+function importDatabase() {
+ const file=document.getElementById("databaseFile").files[0];
+ if(!file){alert("Selecione um arquivo JSON primeiro.");return;}
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const parsed=JSON.parse(reader.result);
+   const list=Array.isArray(parsed)?parsed:(Array.isArray(parsed.players)?parsed.players:null);
+   if(!list)throw new Error("O arquivo precisa conter um array de jogadores ou uma propriedade players com um array.");
+   const imported=[];
+   const seen=new Set([...state.squad,...state.market,...database].map(p=>(p.name||"").toLowerCase()));
+   list.forEach(raw=>{
+    const name=String(raw.name||raw.nome||raw.player_name||"").trim();
+    if(!name)return;
+    const posRaw=String(raw.position||raw.posicao||raw.pos||"MC").toUpperCase();
+    const posMap={
+     GK:"GOL",GOALKEEPER:"GOL",GOL:"GOL",
+     CB:"ZAG",CENTRE_BACK:"ZAG",CENTER_BACK:"ZAG",ZAG:"ZAG",
+     RB:"LD",RIGHT_BACK:"LD",LD:"LD",
+     LB:"LE",LEFT_BACK:"LE",LE:"LE",
+     DM:"VOL",CDM:"VOL",VOL:"VOL",
+     CM:"MC",MC:"MC",AM:"MEI",CAM:"MEI",MEI:"MEI",
+     RW:"PD",RIGHT_WINGER:"PD",PD:"PD",
+     LW:"PE",LEFT_WINGER:"PE",PE:"PE",
+     ST:"ATA",CF:"ATA",FW:"ATA",STRIKER:"ATA",ATA:"ATA"
+    };
+    const pos=posMap[posRaw]||"MC";
+    const real=raw.real!==false && raw.real!=="false";
+    const age=clamp(raw.age??raw.idade??24,16,45);
+    const overall=clamp(raw.overall??raw.ovr??raw.rating??raw.overall_rating??50,35,99);
+    const valueRaw=raw.value??raw.valor??raw.market_value??raw.marketValue;
+    const value=typeof valueRaw==="string"?Number(valueRaw.replace(/[^\d]/g,"")):Number(valueRaw);
+    const wageRaw=raw.wage??raw.salary??raw.salario??raw.salary_eur;
+    const wage=typeof wageRaw==="string"?Number(wageRaw.replace(/[^\d]/g,"")):Number(wageRaw);
+    if(seen.has(name.toLowerCase()))return;
+    seen.add(name.toLowerCase());
+    imported.push(makePlayer(name,pos,age,overall,real,{
+     value:Number.isFinite(value)&&value>0?value:undefined,
+     wage:Number.isFinite(wage)&&wage>0?wage:undefined,
+     club:raw.club||raw.clube||raw.current_club||"Clube externo",
+     nationality:raw.nationality||raw.nacionalidade||"Não informada"
+    }));
+   });
+   database=database.concat(imported);
+   const marketIds=new Set(state.market.map(p=>p.id));
+   imported.forEach(p=>{if(!marketIds.has(p.id))state.market.push({...p,askingPrice:p.value});});
+   writeJSON(DB_KEY,database);
+   saveGame();
+   const status=document.getElementById("databaseStatus");
+   status.classList.remove("hidden","error");
+   status.textContent=`Importação concluída: ${imported.length} novos jogadores adicionados. Duplicados por nome foram ignorados.`;
+   renderAll();
+  }catch(error){
+   const status=document.getElementById("databaseStatus");
+   status.classList.remove("hidden");status.classList.add("error");
+   status.textContent="Falha ao importar: "+error.message;
+  }
+ };
+ reader.readAsText(file);
+}
+
+function exportDatabase() {
+ const blob=new Blob([JSON.stringify(database,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;a.download="football-manager-jogadores.json";a.click();
+ URL.revokeObjectURL(url);
+}
+
+function renderAll() {
+ renderHeaderStats();
+ renderSquad();
+ renderMarket();
+ renderTactics();
+ renderMatchHistory();
+ renderFinance();
+}
+
+document.querySelectorAll(".tab").forEach(button=>{
+ button.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  button.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+button.dataset.page).classList.add("active");
+  renderAll();
+ });
+});
+
+document.getElementById("formation").addEventListener("change",()=>{
+ state.formation=document.getElementById("formation").value;
+ state.lineup={};
+ autoLineup();
+});
+document.getElementById("mentality").addEventListener("change",()=>{
+ state.mentality=document.getElementById("mentality").value;
+ saveGame();renderTactics();
+});
+document.getElementById("squadSearch").addEventListener("input",renderSquad);
+document.getElementById("positionFilter").addEventListener("change",renderSquad);
+document.getElementById("marketSearch").addEventListener("input",renderMarket);
+
+createMarket();
+
+// Mantém o save existente. Só gera escalação se ainda não houver uma.
+if(!Object.keys(state.lineup).length) {
+ autoLineup();
+} else {
+ renderAll();
+}
+
+window.addEventListener("beforeunload",()=>saveGame());
+</script>
+</body>
+</html>
